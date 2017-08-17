@@ -1,3 +1,5 @@
+WKWebViewJSBridge
+=============
 Do you know how to do this in Android? You simply need to create a class and pass an instance to the WebView through **addJavascriptInterface(Object object, String name)**.
 
 ###Some code to demonstrate
@@ -54,3 +56,4 @@ MyJSTest.testWithFuncParam(function (data){
 	return "some data";
 });
 ```
+注：此项目参考[EasyJSWebView](https://github.com/dukeland/EasyJSWebView)进行封装
