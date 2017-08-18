@@ -48,46 +48,6 @@
     [self.proxyDelegate addJavascriptInterfaces:interface WithName:name];
 }
 
-- (void)callBack:(NSString *)callbackFun params:(NSArray *)params err:(ErrorType)errtype{
-    WKJSDataFunction * jsFunction = [[WKJSDataFunction alloc] init];
-    jsFunction.funcID = callbackFun;
-    jsFunction.webView = self;
-    jsFunction.errType = errtype;
-    
-    [jsFunction executeWithParams:params];
-}
-
-- (void)nativeCallJSOnforward:(NSString *)url :(NSString *)title :(NSString *)data{
-    NSString *function = [NSString stringWithFormat:def_JSWebView_OnForward,url,title,data];
-    Easy_DLog(@"nativeCallJSOnforward:\n%@",function);
-    
-    if ([function rangeOfString:@"\n"].length > 0) {
-        function = [function stringByReplacingOccurrencesOfString:@"\n" withString:@"\\\n"];
-    }
-    
-    [self evaluateJavaScript:function completionHandler:nil];
-}
-
-- (void)nativeCallJSOnback:(NSString *)url :(NSString *)data{
-    NSString *function = [NSString stringWithFormat:def_JSWebView_OnBack,url,data];
-    
-    Easy_DLog(@"nativeCallJSOnback:\n%@",function);
-    
-    [self evaluateJavaScript:function completionHandler:nil];
-}
-
-- (void)nativeCallJSOnChange:(NSString *)moduleId{
-    NSString *function = [NSString stringWithFormat:def_JSWebView_OnChange,moduleId];
-    Easy_DLog(@"nativeCallJSOnChange:\n%@",function);
-    [self evaluateJavaScript:function completionHandler:nil];
-}
-
-- (void)nativeCallJSFunction:(NSString *)function{
-    if (function) {
-        [self evaluateJavaScript:function completionHandler:nil];
-    }
-}
-
 - (void) dealloc{
     
     [self stopLoading];

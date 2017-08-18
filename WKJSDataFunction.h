@@ -6,6 +6,9 @@
 //  Copyright © 2017年 zhs. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+#import "ZHSWKWebView.h"
+
 #ifdef DEBUG
 
 #define Easy_LRString [NSString stringWithFormat:@"%s", __FILE__].lastPathComponent
@@ -17,19 +20,10 @@
 
 #endif
 
-#define def_JSWebView_Callback          @"$$.platformAdapter.callback"
-#define def_JSWebView_OnChange          @"$$.EventListener.onChange('%@')"
-#define def_JSWebView_OnBack            @"$$.EventListener.onBack('%@','%@')"
-#define def_JSWebView_OnForward         @"$$.EventListener.onForward('%@','%@',%@)"
-
-#import <Foundation/Foundation.h>
-#import "ErrorTypeManage.h"
-#import <UIKit/UIKit.h>
 
 @interface WKJSDataFunction : NSObject
-@property (nonatomic, weak) UIView *webView;
+@property (nonatomic, weak) ZHSWKWebView *webView;
 @property (nonatomic, strong) NSString *funcID;
-@property (nonatomic, assign) ErrorType errType;
 @property (nonatomic, assign) BOOL removeAfterExecute;
 
 - (id)initWithWebView:(UIView *)webView;

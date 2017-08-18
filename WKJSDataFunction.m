@@ -9,7 +9,7 @@
 #import "WKJSDataFunction.h"
 #import "ZHSWKWebView.h"
 @implementation WKJSDataFunction
-- (id)initWithWebView:(UIView *)webView{
+- (id)initWithWebView:(ZHSWKWebView *)webView{
     self = [super init];
     if (self) {
         self.webView = webView;
@@ -27,28 +27,19 @@
 }
 
 - (void)executeWithParams:(NSArray *)params{
-    NSString* injection = @"";
-    injection = [NSString  stringWithFormat:@"%@('%@'",def_JSWebView_Callback, self.funcID];
-    // 增加 ErrorType
-    NSString* errString = (_errType == Err_None) ? @"null" : [ErrorTypeManage returnErrorName:_errType];
-    injection = [NSString stringWithFormat:@"%@,%@",injection,errString];
+    NSMutableString* injection = @"".mutableCopy;
+    [injection appendFormat:@"EasyJS.invokeCallback(\"%@\", %@", self.funcID, self.removeAfterExecute ? @"true" : @"false"];
     if (params){
         for (int i = 0; i < params.count; i++){
             NSString* arg = [params objectAtIndex:i];
-            injection = [NSString stringWithFormat:@"%@,%@",injection,arg];
+            NSString* encodedArg = [arg stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"!*'();:@&=+$,/?%#[]"].invertedSet];
+            [injection appendFormat:@", \"%@\"", encodedArg];
         }
-    }else{
-        injection = [NSString stringWithFormat:@"%@,%@",injection, @"null"];
     }
-    injection = [NSString stringWithFormat:@"%@)",injection];
+    [injection appendString:@");"];
     Easy_DLog(@"function-string:%@",injection);
-    [self interactiveWithJS:injection];
-}
-
-- (void)interactiveWithJS:(NSString *)injection{
-    if (self.webView){
-        ZHSWKWebView* JSWKWebView = (ZHSWKWebView *)self.webView;
-        [JSWKWebView evaluateJavaScript:injection completionHandler:nil];
+    if (_webView) {
+         [_webView evaluateJavaScript:injection completionHandler:nil];
     }
 }
 

@@ -96,9 +96,9 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
     
     NSURLRequest* request = navigationAction.request;
     NSString *requestString = [[request URL] absoluteString];
-    
+    ZHSWKWebView *zhsView = (ZHSWKWebView *)webView;
     if ([requestString hasPrefix:@"easy-js:"]) {
-        [self handleEasyJS:webView requestString:requestString];
+        [self handleEasyJS:zhsView requestString:requestString];
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
@@ -116,7 +116,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
  *  @param navigation 当前navigation
  */
 - (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(WKNavigation *)navigation {
-    [self injectJSScript:webView];
+    [self injectJSScript:(ZHSWKWebView *)webView];
     [_wkWebViewDelegate webView:webView didStartProvisionalNavigation:navigation];
 }
 
@@ -158,7 +158,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
  *  @param navigation 当前navigation
  */
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
-    [self injectJSScript:webView];
+    [self injectJSScript:(ZHSWKWebView *)webView];
     [_wkWebViewDelegate webView:webView didFinishNavigation:navigation];
 }
 
@@ -193,7 +193,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
 
 #pragma 其他处理JS方法
 //处理EasyJS方法
-- (void)handleEasyJS:(UIView *)webView requestString:(NSString *)requestString{
+- (void)handleEasyJS:(ZHSWKWebView *)webView requestString:(NSString *)requestString{
     /*
      A sample URL structure:
      easy-js:MyJSTest:test
@@ -204,7 +204,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
     
     NSString* obj = (NSString*)[components objectAtIndex:1];
     NSString* method = [(NSString*)[components objectAtIndex:2]
-                        stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                        stringByRemovingPercentEncoding];
     
     NSObject* interface = [_javascriptInterfaces objectForKey:obj];
     
@@ -219,7 +219,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
     
     if ([components count] > 3){
         NSString *argsAsString = [(NSString*)[components objectAtIndex:3]
-                                  stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                                  stringByRemovingPercentEncoding];
         
         NSArray* formattedArgs = [argsAsString componentsSeparatedByString:@":"];
         for (int i = 0, j = 0, l = (int)[formattedArgs count]; i < l; i+=2, j++){
@@ -234,7 +234,7 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
                 [args addObject:func];
                 [invoker setArgument:&func atIndex:(j + 2)];
             }else if ([@"s" isEqualToString:type]){
-                NSString* arg = [argStr stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                NSString* arg = [argStr stringByRemovingPercentEncoding];
                 [args addObject:arg];
                 [invoker setArgument:&arg atIndex:(j + 2)];
             }
@@ -251,13 +251,13 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
         if (retValue == NULL || retValue == nil){
             [self evaluateJavaScript:@"EasyJS.retValue=null;" webView:webView];
         }else{
-            retValue = (NSString *)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(NULL,(CFStringRef) retValue, NULL, (CFStringRef)@"!*'();:@&=+$,/?%#[]", kCFStringEncodingUTF8));
+            retValue = [retValue stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet characterSetWithCharactersInString:@"!*'();:@&=+$,/?%#[]"].invertedSet];
             [self evaluateJavaScript:[@"" stringByAppendingFormat:@"EasyJS.retValue=\"%@\";", retValue] webView:webView];
         }
     }
 }
 //向JS中注入交互方法
-- (void)injectJSScript:(UIView *)webView{
+- (void)injectJSScript:(ZHSWKWebView *)webView{
     if (! self.javascriptInterfaces){
         self.javascriptInterfaces = [[NSMutableDictionary alloc] init];
     }
@@ -296,14 +296,8 @@ return EasyJS.call(obj, method, Array.prototype.slice.call(arguments));\
     [self evaluateJavaScript:injection webView:webView];
 }
 
-- (void)evaluateJavaScript:(NSString *)js webView:(UIView *)_webView{
-    if ([_webView isKindOfClass:[UIWebView class]]) {
-        UIWebView* webView = (UIWebView *)_webView;
-        [webView stringByEvaluatingJavaScriptFromString:js];
-    }else if ([_webView isKindOfClass:[WKWebView class]]){
-        WKWebView* webView = (WKWebView *)_webView;
-        [webView evaluateJavaScript:js completionHandler:nil];
-    }
+- (void)evaluateJavaScript:(NSString *)js webView:(ZHSWKWebView *)webView{
+    [webView evaluateJavaScript:js completionHandler:nil];
 }
 
 - (void)dealloc{
