@@ -2,6 +2,8 @@ WKWebViewJSBridge
 =============
 Do you know how to do this in Android? You simply need to create a class and pass an instance to the WebView through **addJavascriptInterface(Object object, String name)**.
 
+You may find the sample project [here](https://github.com/zhszy/WKWebJSDemo).
+
 ###Some code to demonstrate
 So basically what you need to do is create a class like this.
 
