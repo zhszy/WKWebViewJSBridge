@@ -4,6 +4,34 @@ Do you know how to do this in Android? You simply need to create a class and pas
 
 You may find the sample project [here](https://github.com/zhszy/WKWebViewJSDemo).
 
+## Installation with CocoaPods
+
+[CocoaPods](http://cocoapods.org) is a dependency manager for Objective-C,  You can install it with the following command:
+
+```bash
+$ gem install cocoapods
+```
+> CocoaPods 0.39.0+ is required to build AFNetworking 3.0.0+.
+
+#### Podfile
+
+To integrate WKWebViewJSBridge into your Xcode project using CocoaPods, specify it in your `Podfile`:
+
+```ruby
+source 'https://github.com/zhszy/Speccs.git
+platform :ios, '8.0'
+
+target 'TargetName' do
+pod 'WKWebViewJSBridge'
+end
+```
+
+Then, run the following command:
+
+```bash
+$ pod install
+```
+
 ###Some code to demonstrate
 So basically what you need to do is create a class like this.
 
