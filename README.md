@@ -32,7 +32,7 @@ Then, run the following command:
 $ pod install
 ```
 
-###Some code to demonstrate
+### Some code to demonstrate
 So basically what you need to do is create a class like this.
 
 ```obj-c
